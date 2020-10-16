@@ -1,0 +1,182 @@
+<html lang="en-US">
+	<title>Movie Rating System</title>
+	<script src='angular.js'></script>
+	<body style="background-color:#F1E2D8;">
+		
+		<style>
+			
+			button.logout {
+			width: 10%;
+			display: inline-block;
+			margin-left: 90%;
+			background-color: orange;
+			}
+			button.manage {
+			width: 10%;
+			display: inline-block;
+			margin-left: 90%;
+			background-color: orange;
+			}
+		</style>
+		
+		<div ng-app="film_app" ng-controller="film_controller">
+			<button class="logout" ng-click="logout()">Logout</button><br>
+			<button class="manage" onclick="location.href = '/manage';">Manage Movies</button><br>
+			Welcome {{ username }}! You can manage your movies.
+			<br><label id='experience'>We recommend you to watch:</label><br>
+			<img src="" id="movie1" style="width:200px;height:300px;">
+			<img src="" id="movie2" style="width:200px;height:300px;">
+			<img src="" id="movie3" style="width:200px;height:300px;">
+			<img src="" id="movie4" style="width:200px;height:300px;">
+			<img src="" id="movie5" style="width:200px;height:300px;"><br>
+			<img src="" id="movie6" style="width:200px;height:300px;">
+			<img src="" id="movie7" style="width:200px;height:300px;">
+			<img src="" id="movie8" style="width:200px;height:300px;">
+			<img src="" id="movie9" style="width:200px;height:300px;">
+			<img src="" id="movie10" style="width:200px;height:300px;">
+		</div>
+		
+		<script>
+			var app = angular.module('film_app', []);
+			
+			document.getElementById('movie1').src = ""; 
+			document.getElementById('movie2').src = ""; 
+			document.getElementById('movie3').src = ""; 
+			document.getElementById('movie4').src = ""; 
+			document.getElementById('movie5').src = ""; 
+			document.getElementById('movie6').src = ""; 
+			document.getElementById('movie7').src = ""; 
+			document.getElementById('movie8').src = ""; 
+			document.getElementById('movie9').src = ""; 
+			document.getElementById('movie10').src = ""; 
+			app.controller('film_controller', function($scope, $http) {
+				$scope.action = 0; $scope.adventure = 0; $scope.animation = 0; $scope.biography = 0; $scope.comedy = 0;
+				$scope.crime = 0; $scope.drama = 0; $scope.family = 0; $scope.fantasy = 0; $scope.filmnoir = 0; $scope.history = 0;
+				$scope.horror = 0; $scope.music = 0; $scope.musical = 0; $scope.mystery = 0; $scope.romance = 0; $scope.scifi = 0;
+				$scope.sport = 0; $scope.thriller = 0; $scope.war = 0; $scope.western = 0;
+				$scope.username = 'N/A';
+				$http({
+					method: 'POST',
+					url: '/',
+					}).then(function success(msg) {
+					$scope.username = msg.data;
+				});
+				$http({
+					method: 'POST',
+					url: '/db',
+					}).then(function success(msg) {
+					console.log(msg.data);
+					var yeartotal = 0;
+					var messagedata = (Object.keys(msg.data));
+					$scope.len = messagedata.length;
+					for(i = 0; i < $scope.len; i++) {
+						for(j = 0; j < msg.data[i][0].genres.length; j++) {						
+							if(msg.data[i][0].genres[j] === 'Action') $scope.action++;
+							if(msg.data[i][0].genres[j] === 'Adventure') $scope.adventure++;
+							if(msg.data[i][0].genres[j] === 'Animation') $scope.animation++;
+							if(msg.data[i][0].genres[j] === 'Biography') $scope.biography++;
+							if(msg.data[i][0].genres[j] === "Comedy") $scope.comedy++;
+							if(msg.data[i][0].genres[j] === "Crime") $scope.crime++;
+							if(msg.data[i][0].genres[j] === "Drama") $scope.drama++;
+							if(msg.data[i][0].genres[j] === "Family") $scope.family++;
+							if(msg.data[i][0].genres[j] === "Fantasy") $scope.fantasy++;
+							if(msg.data[i][0].genres[j] === "Film-Noir") $scope.filmnoir++;
+							if(msg.data[i][0].genres[j] === "History") $scope.history++;
+							if(msg.data[i][0].genres[j] === "Horror") $scope.horror++;
+							if(msg.data[i][0].genres[j] === "Music") $scope.music++;
+							if(msg.data[i][0].genres[j] === "Musical") $scope.musical++;
+							if(msg.data[i][0].genres[j] === "Mystery") $scope.mystery++;
+							if(msg.data[i][0].genres[j] === "Romance") $scope.romance++;
+							if(msg.data[i][0].genres[j] === "Sci-Fi") $scope.scifi++;
+							if(msg.data[i][0].genres[j] === "Sport") $scope.sport++;
+							if(msg.data[i][0].genres[j] === "Thriller") $scope.thriller++;
+							if(msg.data[i][0].genres[j] === "War") $scope.war++;
+							if(msg.data[i][0].genres[j] === "Western") $scope.western++;							
+						}
+						yeartotal += msg.data[i][0].year;
+					} 	
+					var maxgenre = {'Action': $scope.action, 'Adventure': $scope.adventure, 'Animation': $scope.animation, 'Biography': $scope.biography, 'Comedy': $scope.comedy, 'Crime': $scope.crime,
+						'Drama': $scope.drama, 'Family': $scope.family, 'Fantasy': $scope.fantasy, 'Film-Noir': $scope.filmnoir, 'History': $scope.history, 
+						'Horror': $scope.horror, 'Music': $scope.music, 'Musical': $scope.musical, 'Mystery': $scope.mystery, 'Romance': $scope.romance, 'Sci-Fi': $scope.scifi, 
+					'Sport': $scope.sport, 'Thriller': $scope.thriller, 'War': $scope.war, 'Western': $scope.western};
+					setTimeout(() => {
+						$scope.std_total = 0;
+						console.log(maxgenre);
+						console.log(msg.data.length);
+						$scope.avgyear = Math.trunc(yeartotal / msg.data.length);
+						console.log($scope.avgyear);
+						for(i = 0; i < $scope.len; i++) {
+							$scope.std_total += Math.pow(Math.abs(msg.data[i][0].year - $scope.avgyear), 2);
+						}
+						setTimeout(() => {$scope.stdev = Math.trunc(Math.sqrt($scope.std_total / ($scope.len - 1)))}, $scope.len * 2);
+					}, $scope.len * 2);
+					
+					var n = Object.values(maxgenre)[0];
+					var j = 0;
+					var m = n;
+					for(i = 0; i < Object.keys(maxgenre).length; i++) {
+						m = n;
+						n = Math.max(n, Object.values(maxgenre)[i]);
+						if(m != n) {
+							j = i;
+						}
+					}
+					console.log(Object.keys(maxgenre)[j]);
+					setTimeout(() => {$scope.maxval = Object.keys(maxgenre)[j]}, 200);
+					setTimeout($scope.innercall, 350);
+				});
+				$scope.innercall = () => { $http({
+					method: 'POST',
+					url: '/db/all',
+					data: { "genres": $scope.maxval, "avgyear": $scope.avgyear, "stdev": $scope.stdev }
+					}).then(function success(msg) {
+					if(msg.data[0].length != 0) {
+						console.log(msg.data);
+						document.getElementById('movie1').src = msg.data[0][0].poster; 
+						document.getElementById('movie1').title = msg.data[0][0].moviename;
+						document.getElementById('movie2').src = msg.data[0][1].poster; 
+						document.getElementById('movie2').title = msg.data[0][1].moviename;
+						document.getElementById('movie3').src = msg.data[0][2].poster;
+						document.getElementById('movie3').title = msg.data[0][2].moviename;
+						document.getElementById('movie4').src = msg.data[0][3].poster; 
+						document.getElementById('movie4').title = msg.data[0][3].moviename;
+						document.getElementById('movie5').src = msg.data[0][4].poster; 
+						document.getElementById('movie5').title = msg.data[0][4].moviename;
+						document.getElementById('movie6').src = msg.data[0][5].poster; 
+						document.getElementById('movie6').title = msg.data[0][5].moviename;
+						document.getElementById('movie7').src = msg.data[0][6].poster; 
+						document.getElementById('movie7').title = msg.data[0][6].moviename;
+						document.getElementById('movie8').src = msg.data[0][7].poster; 
+						document.getElementById('movie8').title = msg.data[0][7].moviename;
+						document.getElementById('movie9').src = msg.data[0][8].poster; 
+						document.getElementById('movie9').title = msg.data[0][8].moviename;
+						document.getElementById('movie10').src = msg.data[0][9].poster; 
+						document.getElementById('movie10').title = msg.data[0][9].moviename;
+						} else {
+						console.log("No movies.");
+						document.getElementById('experience').innerHTML = "To have recommendations, add movies to the list!";
+						document.getElementById('movie1').style.visibility = "hidden";
+						document.getElementById('movie2').style.visibility = "hidden";
+						document.getElementById('movie3').style.visibility = "hidden";
+						document.getElementById('movie4').style.visibility = "hidden";
+						document.getElementById('movie5').style.visibility = "hidden";
+						document.getElementById('movie6').style.visibility = "hidden";
+						document.getElementById('movie7').style.visibility = "hidden";
+						document.getElementById('movie8').style.visibility = "hidden";
+						document.getElementById('movie9').style.visibility = "hidden";
+						document.getElementById('movie10').style.visibility = "hidden";
+					}
+				}); }
+				$scope.logout = function() {
+					$http({
+						method: 'POST',
+						url: '/logout',
+					});
+					window.location.href = 'logout';
+				}
+			});
+		</script> 
+		
+	</body>
+	
+</html>

@@ -1,0 +1,82 @@
+<html lang="en-US">
+	<title>Movie Rating System Signup</title>
+	<script src='angular.js'></script>
+	<body style="background-color:#F1E2D8;">
+		
+		<style>
+			p.login {
+			margin-left: 36%;
+			}
+			button.okay {
+			width:60px;
+			margin-left: 50%;
+			background-color: orange;
+			}
+			button.return {
+			width:60px;
+			margin-left: 50%;
+			background-color: orange;
+			}
+			p.usernamefield {
+			width:375px;
+			margin-left: 45%;
+			}
+			p.passfield {
+			width:375px;
+			margin-left: 45%;
+			}
+			p.passagainfield {
+			width:375px;
+			margin-left: 45%;
+			}
+		</style>
+		<div ng-app="login_app" ng-controller="login_controller">
+			<form name="signForm">
+				<p class="login">Welcome! Here, you can sign in to reach your favourite movies, connecting to IMDb.</p><br>
+				<p class="usernamefield">Username<input type="text" name="usnf" style="margin-left:74px" ng-model="namehere" ng-bind="namehere"></input></p>
+				<p class="passfield">Password<input type="password" name="passf" style="margin-left:78px" ng-model="pass" ng-bind="pass"></input></p>
+			</form>
+			<button class="okay" ng-click="check()">OK</button><br>
+		</div>
+		<button class="return" onclick="location.href = '/';">Return</button>
+		<script>
+			
+			var app = angular.module('login_app', []);
+			app.controller('login_controller', function($scope, $http) {
+				$scope.namehere = "";
+				$scope.pass = "";
+				$scope.check = function() {
+					var formData = new FormData();
+					formData.append('name', $scope.namehere);
+					formData.append('pass', $scope.pass);
+					console.log($scope.namehere);
+					console.log($scope.pass);
+					
+					var object = {};
+					formData.forEach(function(value, key){
+						object[key] = value;
+					});
+					var json = JSON.stringify(object);
+					$http({
+						method: 'POST',
+						url: '/login',
+						data: json
+						}).then(function success(msg) {
+						console.log(msg);
+						if(msg.data === 'valid') {
+							window.location.href = '/';
+							} else if(msg.data === 'invalid') {
+							window.alert('Invalid credentials.');
+						}
+						
+						}, function error(response) {
+						
+					});
+					
+				}
+			});
+		</script> 
+		
+	</body>
+	
+</html>

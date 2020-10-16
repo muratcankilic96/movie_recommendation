@@ -1,0 +1,259 @@
+<html lang="en-US">
+	<title>Movie Rating System</title>
+	<script src='angular.js'></script>
+	<body style="background-color:#F1E2D8;">
+		<style>
+			
+			input.add {
+			width: 10%;
+			margin-left: 45%;
+			}
+			
+			p.add {
+			width:375px;
+			margin-left: 46.5%;
+			}
+			
+			p.movieinfo {
+			width:375px;
+			display: inline;	
+			margin-left: 45%;
+			}
+			
+			p.movieinfo2 {
+			width:375px;
+			display: inline;	
+			margin-left: 1%;
+			}
+			
+			button.add {
+			width: 10%;
+			margin-left: 45%;
+			background-color: orange;
+			}
+			button.manage {
+			width: 10%;
+			display: inline-block;
+			margin-left: 90%;
+			background-color: orange;
+			}
+			ul.movielist {
+			background: #c289eb;
+			padding: 20px;
+			list-style-image: url('movie.ico');
+			border: 25px solid #ddd;
+			}
+			ul.movielist li {
+			background: #c249eb;
+			padding: 16px 16px;
+			border-bottom: 1px solid #ddd;
+			}
+			span.close {
+			font-size:24px;
+			position: sticky;
+			left: 95%;
+			top: 0;
+			padding: 12px 16px 12px 16px;
+			}
+		</style>
+		
+		<div ng-app="manage_app" ng-controller="manage_controller">
+			<button class="manage" onclick="location.href = '/';">Return</button><br>
+			<button class="manage" ng-click="logout()">Logout</button><br>
+			Welcome {{ username }}! Manage your movies here.
+			<ul id="movielist" class="movielist">
+			</ul>
+			<p class="add">Input Movie Title</p><input ng-model="apifetch" ng-bind="apifetch" type="text" class="add" id="textsrch"></input>
+			<br><img id="loading" src="" style="margin-left:49%"></img><br>
+			<p id="movienamelabel" class="movieinfo">Movie Title: </p><p id="moviename" class="movieinfo2"></p><br>
+			<p id="yearlabel" class="movieinfo">Year: </p><p id="year" class="movieinfo2"></p><br>
+			<p id="directorlabel" class="movieinfo">Director: </p><p id="director" class="movieinfo2"></p><br>
+			<p id="genreslabel" class="movieinfo">Genres: </p><p id="genres" class="movieinfo2"></p><br>
+			<button type="button" class="add" id="searcher" ng-click="searchMovie()">Search Movie</button><br>
+			<button type="button" disabled class="add" id="adder" ng-click="addMovie()">Add Movie</button><br>
+		</div>
+		
+		<script>
+			var app = angular.module('manage_app', []);
+			
+			loadElement = function(mname) {
+				var arr = ["list", "items", "here"];
+				var li  = document.createElement("li");
+				var span = document.createElement("SPAN");
+				var t1   = document.createTextNode(mname);
+				var t2   = document.createTextNode("x");
+				span.className = "close";
+				span.appendChild(t2);
+				span.onclick = function() {
+					var div = this.parentElement;
+					div.style.display = "none";
+					var data = div.innerHTML.split(" (");
+					var data2 = data[1].split(") ")[0];
+					var data = data[0];
+					console.log(data);
+					console.log(data2);
+					destroy(data, data2);
+				}
+				li.appendChild(t1);
+				li.appendChild(span);
+				movielist.appendChild(li);
+			}
+			
+			searchingLogo = function(appearance) {
+				var textdoc = document.getElementById("loading");
+				if(appearance == 1) {
+					loading.src = "loading.gif";
+				}
+				else {
+					loading.src = "";
+				}
+				
+			}
+			
+			app.controller('manage_controller', function($scope, $http, $interval) {
+				$scope.username = 'N/A';
+				$scope.apifetch = "";
+				$scope.movieData = null;
+				var movielist = document.getElementById('movielist');
+				
+				refresh = function() {
+					$http({
+						method: 'POST',
+						url: '/manage'
+						}).then(function success(msg) {
+						var ul = document.getElementById("movielist");
+						ul.innerHTML = "";
+						console.log(msg);
+						for(i = 0; i < msg.data.length; i++) {
+							
+							loadElement(msg.data[i].moviename + " (" + msg.data[i].year + ") by " + msg.data[i].director);
+						}
+						}, function error(msg) {
+						
+					});
+				}
+				
+				destroy = function(data, data2) {
+				$http({
+					method: 'POST',
+					url: '/manage/destroy',
+					data: { "moviename" : data,
+					"year" : data2 }
+					}).then(function success(msg) {
+					
+				}); 
+				}
+				
+				$http({
+					method: 'POST',
+					url: '/manage/usr'
+					}).then(function success(msg) {
+					$scope.username = msg.data;
+				});
+				
+				
+				$scope.logout = function() {
+					console.log("Function works");
+					$http({
+						method: 'POST',
+						url: '/logout',
+						});
+						window.location.href = 'logout';
+					}
+					$scope.searchMovie = function() {
+						var searcher = document.getElementById("searcher");
+						var adder = document.getElementById("adder");
+						var movienamelabel = document.getElementById("movienamelabel");
+						var moviename = document.getElementById("movienamelabel");
+						var yearlabel = document.getElementById("yearlabel");
+						var year = document.getElementById("year");
+						var directorlabel = document.getElementById("directorlabel");
+						var director = document.getElementById("director");
+						var genreslabel = document.getElementById("genreslabel");
+						var genres = document.getElementById("genres");
+						searcher.disabled = true;
+						searcher.innerHTML = "Searching...";
+						searchingLogo(1);
+						$http.get("http://www.omdbapi.com/?t=" + $scope.apifetch + "&apikey=e1a6fa62").then(function(response){
+							$scope.movieData = response.data;
+							console.log($scope.movieData);
+							searchingLogo(0);
+							searcher.innerHTML = "Search Movie";
+							searcher.disabled = false;
+							if($scope.movieData.Response === "False") {
+								window.alert("Movie not found.");
+								adder.disabled = true;
+								movienamelabel.innerHTML = "";
+								yearlabel.innerHTML = "";
+								directorlabel.innerHTML = "";
+								genreslabel.innerHTML = "";
+								moviename.innerHTML = "";
+								year.innerHTML = "";
+								director.innerHTML = "";
+								genres.innerHTML = "";
+								} else {			
+								adder.disabled = false;
+								movienamelabel.innerHTML = "Movie Title: ";
+								yearlabel.innerHTML = "Year: ";
+								directorlabel.innerHTML = "Director: ";
+								genreslabel.innerHTML = "Genres: ";
+								moviename.innerHTML = $scope.movieData.Title;
+								year.innerHTML = $scope.movieData.Year;
+								director.innerHTML = $scope.movieData.Director;
+								genres.innerHTML = $scope.movieData.Genre;
+							}
+							}, function(response) {
+							window.alert("Something went wrong.");
+						});
+					}
+					$scope.addMovie = function() {
+						var searcher = document.getElementById("searcher");
+						var adder = document.getElementById("adder");
+						var movienamelabel = document.getElementById("movienamelabel");
+						var moviename = document.getElementById("movienamelabel");
+						var yearlabel = document.getElementById("yearlabel");
+						var year = document.getElementById("year");
+						var directorlabel = document.getElementById("directorlabel");
+						var director = document.getElementById("director");
+						var genreslabel = document.getElementById("genreslabel");
+						var genres = document.getElementById("genres");
+						adder.disabled = true;
+						
+						
+						
+						$http({
+							method: 'POST',
+							url: '/manage/db',
+							data: { "moviename" : moviename.innerHTML,
+								"year" : year.innerHTML,
+								"director" : director.innerHTML,
+							"genres" : genres.innerHTML,
+							"poster" : $scope.movieData.Poster }
+							}).then(function success(msg) {
+							console.log(msg);
+							if(msg.data === "Invalid") {
+								window.alert("This movie already exists.");
+								return;
+							}
+							console.log("Nani?");
+							loadElement($scope.movieData.Title + " (" + $scope.movieData.Year + ") by " + $scope.movieData.Director);
+							}, function error(msg) {
+							console.log(msg);
+						});
+						movienamelabel.innerHTML = "";
+						yearlabel.innerHTML = "";
+						directorlabel.innerHTML = "";
+						genreslabel.innerHTML = "";
+						moviename.innerHTML = "";
+						year.innerHTML = "";
+						director.innerHTML = "";
+						genres.innerHTML = "";
+					}
+					refresh();
+					//Refresh = $interval(refresh, 1000);
+				});
+			</script> 
+			
+		</body>
+		
+	</html>	

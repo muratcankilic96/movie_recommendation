@@ -1,0 +1,97 @@
+<html lang="en-US">
+	<title>Movie Rating System Signup</title>
+	<script src='angular.js'></script>
+	<body style="background-color:#F1E2D8;">
+		
+		<style>
+			p.signup {
+			margin-left: 36%;
+			}
+			button.okay {
+			width:60px;
+			margin-left: 50%;
+			background-color: orange;
+			}
+			button.return {
+			width:60px;
+			margin-left: 50%;
+			background-color: orange;
+			}
+			p.namefield {
+			width:375px;
+			margin-left: 45%;
+			}
+			p.usernamefield {
+			width:375px;
+			margin-left: 45%;
+			}
+			p.surnamefield {
+			width:375px;
+			margin-left: 45%;
+			}
+			p.passfield {
+			width:375px;
+			margin-left: 45%;
+			}
+			p.passagainfield {
+			width:375px;
+			margin-left: 45%;
+			}
+		</style>
+		<div ng-app="creation_app" ng-controller="creation_controller">
+			<form name="signForm">
+				<p class="signup">Welcome! Here, you can sign up to reach your favourite movies, connecting to IMDb.</p><br>
+				<p class="namefield">Name<input type="text" name="nf" style="margin-left:102px" ng-model="namehere" ng-bind="namehere"></input></p>
+				<p class="surnamefield">Surname<input type="text" name="snf" style="margin-left:83px" ng-model="surnamehere" ng-bind="surnamehere"></input></p>
+				<p class="usernamefield">Username<input type="text" name="userf" style="margin-left:75px" ng-model="usnhere" ng-bind="usnhere"></input></p>
+				<p class="passfield">Password<input type="password" name="passf" style="margin-left:78px" ng-model="pass" ng-bind="pass"></input></p>
+				<p class="passagainfield">Password (again)<input type="password" style="margin-left:29px" ng-model="againpass" ng-bind="againpass"></input></p>
+			</form>
+			<button class="okay" ng-click="check()">OK</button><br>
+		</div>
+		<button class="return" onclick="location.href = '/';">Return</button>
+		<script>
+			
+			var app = angular.module('creation_app', []);
+			app.controller('creation_controller', function($scope, $http) {
+				$scope.namehere = "";
+				$scope.surnamehere = "";
+				$scope.usnhere = "";
+				$scope.pass = "";
+				$scope.againpass = "";
+				$scope.check = function() {
+					if($scope.namehere.length == 0 || $scope.surnamehere.length == 0) {
+					window.alert("The name-surname field cannot be empty."); }
+					else if($scope.usnhere.length == 0) {
+						window.alert("The username field cannot be empty.");
+						} else if($scope.pass != $scope.againpass) {
+						window.alert("The passwords do not match.");
+						} else if($scope.pass.length < 8) {
+						window.alert("The password is too short.");
+						} else {
+						var formData = new FormData();
+						formData.append('name', $scope.namehere);
+						formData.append('surname', $scope.surnamehere);
+						formData.append('username', $scope.usnhere);
+						formData.append('password', $scope.pass);
+						formData.append('authority', 'user');
+						
+						var object = {};
+						formData.forEach(function(value, key){
+							object[key] = value;
+						});
+						var json = JSON.stringify(object);
+						$http({
+							method: 'POST',
+							url: '/signup',
+							data: json
+						});
+						window.location.href = 'success';
+					}
+				}
+			});
+		</script> 
+		
+	</body>
+	
+</html>

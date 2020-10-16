@@ -1,0 +1,38 @@
+<html lang="en-US">
+<title>Movie Rating System</title>
+<script src='angular.js'></script>
+<body style="background-color:#F1E2D8;">
+
+<style>
+
+
+button.account {
+	width: 10%;
+	display: inline-block;
+	margin-left: 90%;
+	background-color: orange;
+}
+button.login {
+	width: 10%;
+	display: inline-block;
+	margin-left: 90%;
+	background-color: orange;
+}
+</style>
+
+<div ng-app="film_app" ng-controller="film_controller">
+<button class="account" onclick="location.href = 'signup';">Create an Account</button><br>
+<button class="login" onclick="location.href = 'login';">Login</button><br>
+This Web application is created to rate movies for users. You can create an account,<br> then you can start to rate.
+</div>
+
+<script>
+var app = angular.module('film_app', []);
+app.controller('film_controller', function($scope) {
+
+});
+</script> 
+
+</body>
+
+</html>
